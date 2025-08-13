@@ -13,7 +13,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h> // For core Windows API functions
 #include <shellapi.h> // For CommandLineToArgvW
-#include "../res/resource.h" // For our application icon ID
+#include "resource.h" // For our application icon ID
 
 std::atomic<bool> keepRunning = true;
 bool g_isVerbose = false; // Global flag to control logging output.
