@@ -9,7 +9,10 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Create the executable from the source file
-add_executable(${PROJECT_NAME} WIN32 src/screen_light.cpp)
+add_executable(${PROJECT_NAME} WIN32
+    src/screen_light.cpp
+    res/resource.rc
+)
 
 # Link against necessary Windows libraries only when building for Windows
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")

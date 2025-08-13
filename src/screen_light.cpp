@@ -13,6 +13,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h> // For core Windows API functions
 #include <shellapi.h> // For CommandLineToArgvW
+#include "../res/resource.h" // For our application icon ID
 
 std::atomic<bool> keepRunning = true;
 bool g_isVerbose = false; // Global flag to control logging output.
@@ -80,10 +81,7 @@ public:
     }
 
 private:
-    int screenWidth;
-    int screenHeight;
-    int x, y;
-    int dx, dy;
+    int screenWidth, screenHeight, x, y, dx, dy;
 };
 
 // Forward declaration of the window procedure.
@@ -138,7 +136,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         return EXIT_FAILURE;
     }
 
-    const wchar_t CLASS_NAME[] = L"MouseMoverWindowClass";
+    const wchar_t CLASS_NAME[] = L"ScreenLightWindowClass";
 
     WNDCLASSEXW wc = {};
     wc.cbSize = sizeof(WNDCLASSEXW);
@@ -146,6 +144,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     wc.lpfnWndProc = WndProc;
     wc.hInstance = hInstance;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    // Load the icon from our resources
+    wc.hIcon = LoadIconW(hInstance, MAKEINTRESOURCEW(IDI_APPICON));
+    wc.hIconSm = LoadIconW(hInstance, MAKEINTRESOURCEW(IDI_APPICON));
     wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
     wc.lpszClassName = CLASS_NAME;
 
@@ -158,7 +159,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     HWND hwnd = CreateWindowExW(
         0,                              // Optional window styles.
         CLASS_NAME,                     // Window class
-        L"Mouse Mover",                 // Window text
+        L"Screen Light",                // Window text
         WS_POPUP,                       // Window style: a borderless popup window
         0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), // Position and size
         NULL,                           // Parent window
@@ -177,7 +178,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     UpdateWindow(hwnd);
     // ShowCursor(FALSE); // Hide the mouse cursor for a cleaner look.
 
-    logMessage("Mouse movement started. Press Ctrl+C or ESC to stop the program.");
+    logMessage("Screen light started. Press ESC to stop the program.");
 
     MouseMover mover;
     MSG msg = {};
