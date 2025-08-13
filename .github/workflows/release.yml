@@ -1,0 +1,35 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # Trigger on version tags like v1.0.0, v1.1.0, etc.
+
+jobs:
+  build-and-release:
+    name: Build and Release for Windows
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build g++-mingw-w64-x86-64 zip
+
+      - name: Configure CMake
+        run: cmake --preset mingw-release
+
+      - name: Build with CMake
+        run: cmake --build --preset release
+
+      - name: Package release assets
+        run: |
+          zip -j ScreenLight-windows-x64.zip build/mingw-release/ScreenLight.exe README.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ScreenLight-windows-x64.zip
+          generate_release_notes: true # Automatically create release notes from commits
