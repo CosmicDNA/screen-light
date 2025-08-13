@@ -2,14 +2,14 @@
 cmake_minimum_required(VERSION 3.20)
 
 # Define the project name and language
-project(MouseMover LANGUAGES CXX)
+project(ScreenLight LANGUAGES CXX)
 
 # Set the C++ standard to C++23
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Create the executable from the source file
-add_executable(${PROJECT_NAME} WIN32 src/mouse_mover.cpp)
+add_executable(${PROJECT_NAME} WIN32 src/screen_light.cpp)
 
 # Link against necessary Windows libraries only when building for Windows
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")

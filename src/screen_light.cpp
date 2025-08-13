@@ -11,7 +11,6 @@
 
 // Windows API - Include last, with macros to reduce header size and avoid conflicts.
 #define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
 #include <windows.h> // For core Windows API functions
 #include <shellapi.h> // For CommandLineToArgvW
 
