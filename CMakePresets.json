@@ -1,0 +1,39 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "mingw-debug",
+      "displayName": "MinGW Cross-Compile (Debug)",
+      "description": "Configures a debug build for Windows using the MinGW toolchain and Ninja.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/mingw-toolchain.cmake",
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "mingw-release",
+      "displayName": "MinGW Cross-Compile (Release)",
+      "description": "Configures a release build for Windows using the MinGW toolchain and Ninja.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/mingw-toolchain.cmake",
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug",
+      "displayName": "Build (Debug)",
+      "configurePreset": "mingw-debug"
+    },
+    {
+      "name": "release",
+      "displayName": "Build (Release)",
+      "configurePreset": "mingw-release"
+    }
+  ]
+}
