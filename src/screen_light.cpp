@@ -17,6 +17,7 @@
 
 std::atomic<bool> keepRunning = true;
 bool g_isVerbose = false; // Global flag to control logging output.
+BYTE g_grayLevel = 255;   // Current gray level (0=black, 255=white)
 
 // A simple logger that only prints messages if in verbose mode.
 void logMessage(const std::string& message) {
@@ -87,6 +88,38 @@ private:
 // Forward declaration of the window procedure.
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
+// Updates the window's background color to a new shade of gray.
+void UpdateBackgroundColor(HWND hwnd, bool goLighter, int step) {
+    int newGrayLevel = g_grayLevel;
+
+    if (goLighter) {
+        newGrayLevel += step;
+        if (newGrayLevel > 255) newGrayLevel = 255;
+    } else { // goDarker
+        newGrayLevel -= step;
+        if (newGrayLevel < 0) newGrayLevel = 0;
+    }
+
+    if (newGrayLevel != g_grayLevel) {
+        g_grayLevel = static_cast<BYTE>(newGrayLevel);
+
+        // Create a new brush with the updated color
+        HBRUSH hNewBrush = CreateSolidBrush(RGB(g_grayLevel, g_grayLevel, g_grayLevel));
+        if (hNewBrush) {
+            // Set the new brush as the background for the window class.
+            // The old brush is returned and must be deleted to prevent leaks.
+            HBRUSH hOldBrush = (HBRUSH)SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)hNewBrush);
+            if (hOldBrush) {
+                DeleteObject(hOldBrush);
+            }
+
+            // Force the window to repaint with the new background
+            InvalidateRect(hwnd, NULL, TRUE);
+            logMessage("Screen brightness set to " + std::to_string(g_grayLevel) + "/255");
+        }
+    }
+}
+
 // Parses the application's command line into a vector of strings.
 std::vector<std::string> ParseCommandLine() {
     std::vector<std::string> args;
@@ -132,31 +165,39 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     if (!SetConsoleCtrlHandler(consoleHandler, TRUE))
     {
         logMessage("Error: Could not set control handler.");
-        MessageBoxW(NULL, L"Could not set console control handler.", L"Startup Error", MB_OK | MB_ICONERROR);
+        MessageBox(NULL, L"Could not set console control handler.", L"Startup Error", MB_OK | MB_ICONERROR);
         return EXIT_FAILURE;
     }
 
     const wchar_t CLASS_NAME[] = L"ScreenLightWindowClass";
 
-    WNDCLASSEXW wc = {};
-    wc.cbSize = sizeof(WNDCLASSEXW);
+    // Create the initial background brush (white).
+    HBRUSH hInitialBrush = CreateSolidBrush(RGB(g_grayLevel, g_grayLevel, g_grayLevel));
+    if (!hInitialBrush) {
+        logMessage("Error: Could not create initial background brush.");
+        MessageBox(NULL, L"Could not create initial background brush.", L"Startup Error", MB_OK | MB_ICONERROR);
+        return EXIT_FAILURE;
+    }
+
+    WNDCLASSEX wc = {};
+    wc.cbSize = sizeof(WNDCLASSEX);
     wc.style = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc = WndProc;
     wc.hInstance = hInstance;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     // Load the icon from our resources
-    wc.hIcon = LoadIconW(hInstance, MAKEINTRESOURCEW(IDI_APPICON));
-    wc.hIconSm = LoadIconW(hInstance, MAKEINTRESOURCEW(IDI_APPICON));
-    wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+    wc.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPICON));
+    wc.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPICON));
+    wc.hbrBackground = hInitialBrush;
     wc.lpszClassName = CLASS_NAME;
 
-    if (!RegisterClassExW(&wc)) {
+    if (!RegisterClassEx(&wc)) {
         logMessage("Error: Could not register window class.");
-        MessageBoxW(NULL, L"Could not register window class.", L"Startup Error", MB_OK | MB_ICONERROR);
+        MessageBox(NULL, L"Could not register window class.", L"Startup Error", MB_OK | MB_ICONERROR);
         return EXIT_FAILURE;
     }
 
-    HWND hwnd = CreateWindowExW(
+    HWND hwnd = CreateWindowEx(
         0,                              // Optional window styles.
         CLASS_NAME,                     // Window class
         L"Screen Light",                // Window text
@@ -170,7 +211,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     if (!hwnd) {
         logMessage("Error: Could not create window.");
-        MessageBoxW(NULL, L"Could not create window.", L"Startup Error", MB_OK | MB_ICONERROR);
+        MessageBox(NULL, L"Could not create window.", L"Startup Error", MB_OK | MB_ICONERROR);
         return EXIT_FAILURE;
     }
 
@@ -218,14 +259,36 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         return 0;
     case WM_DESTROY:
         // The window is being destroyed.
+        // Clean up the last background brush created to prevent resource leaks.
+        {
+            HBRUSH hBrush = (HBRUSH)GetClassLongPtr(hwnd, GCLP_HBRBACKGROUND);
+            if (hBrush) {
+                DeleteObject(hBrush);
+            }
+        }
         PostQuitMessage(0);
         return 0;
     case WM_KEYDOWN:
-        // User pressed a key.
-        if (wParam == VK_ESCAPE) {
-            DestroyWindow(hwnd);
+    {
+        // By enclosing the case's logic in a block, we correctly scope the 'step'
+        // variable and prevent the "crosses initialization" compiler error.
+        const int step = (GetKeyState(VK_SHIFT) & 0x8000) ? 1 : 10;
+        switch (wParam) {
+            case VK_ESCAPE:
+                DestroyWindow(hwnd);
+                break;
+            case VK_UP:
+                UpdateBackgroundColor(hwnd, true, step); // Make the screen lighter
+                break;
+            case VK_DOWN:
+                UpdateBackgroundColor(hwnd, false, step); // Make the screen darker
+                break;
+            default:
+                // Do nothing for other keys
+                break;
         }
         return 0;
+    }
     default:
         return DefWindowProc(hwnd, msg, wParam, lParam);
     }

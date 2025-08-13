@@ -14,6 +14,10 @@ add_executable(${PROJECT_NAME} WIN32
     res/resource.rc
 )
 
+# Define preprocessor macros for Unicode support across the application.
+# This ensures Windows API calls correctly resolve to their wide-character (W) versions.
+target_compile_definitions(${PROJECT_NAME} PRIVATE UNICODE _UNICODE)
+
 # Link against necessary Windows libraries only when building for Windows
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     # Statically link runtime libraries to create a portable executable.
