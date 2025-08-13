@@ -9,6 +9,9 @@ jobs:
   build-and-release:
     name: Build and Release for Windows
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to create a GitHub release
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
