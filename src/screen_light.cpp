@@ -22,10 +22,10 @@ BYTE g_grayLevel = 255;   // Current gray level (0=black, 255=white)
 // A simple logger that only prints messages if in verbose mode.
 void logMessage(const std::string& message) {
     if (g_isVerbose) {
-        // After redirecting stdout with freopen_s, C-style I/O is more reliable
-        // than C++ streams, which may not sync correctly with the new console.
-        fprintf(stdout, "%s\n", message.c_str());
-        fflush(stdout); // Ensure the output is written immediately.
+        // By default, std::cout is synchronized with the C stdout stream.
+        // After redirecting stdout with freopen_s, std::cout will write to the new console.
+        // std::endl flushes the buffer, ensuring the message appears immediately.
+        std::cout << message << std::endl;
     }
 }
 // This is the console control handler function that will be called for events like Ctrl+C.
