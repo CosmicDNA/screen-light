@@ -254,6 +254,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     ShowCursor(TRUE); // Restore the mouse cursor before exiting.
     logMessage("Program terminated.");
 
+    // If we attached to or created a console, we must free it before exiting.
+    // This detaches our process from the console and allows the parent shell
+    // (e.g., PowerShell) to correctly regain control and redraw its prompt.
+    if (g_isVerbose) {
+        FreeConsole();
+    }
+
     return (int)msg.wParam; // Return the exit code from WM_QUIT
 }
 
