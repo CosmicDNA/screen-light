@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 # Define the project name and language
-project(ScreenLight VERSION 1.0.6 LANGUAGES CXX)
+project(ScreenLight VERSION 1.0.7 LANGUAGES CXX)
 
 # Set the C++ standard to C++23
 set(CMAKE_CXX_STANDARD 23)
@@ -16,7 +16,7 @@ configure_file(
 )
 
 # Create the executable from the source file
-add_executable(${PROJECT_NAME}
+add_executable(${PROJECT_NAME} WIN32
     src/screen_light.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/resource.rc
 )

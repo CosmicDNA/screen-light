@@ -25,30 +25,8 @@ HWND g_hMainWnd = NULL;   // Global handle to the main window for cross-thread c
 // A simple logger that only prints messages if in verbose mode.
 void logMessage(const std::string& message) {
     if (g_isVerbose) {
-        // By default, std::cout is synchronized with the C stdout stream.
-        // After redirecting stdout with freopen_s, std::cout will write to the new console.
-        // std::endl flushes the buffer, ensuring the message appears immediately.
         std::cout << message << std::endl;
     }
-}
-// This is the console control handler function that will be called for events like Ctrl+C.
-// It's the preferred, platform-native way to handle this on Windows.
-BOOL WINAPI consoleHandler(DWORD ctrlType) {
-    switch (ctrlType) {
-    // Handle Ctrl+C, Ctrl+Break, and the console window being closed.
-    case CTRL_C_EVENT:
-    case CTRL_BREAK_EVENT:
-    case CTRL_CLOSE_EVENT:
-        logMessage("\nShutdown signal received. Shutting down gracefully.");
-        // Post a message to the main window's message queue to initiate shutdown.
-        // This is the thread-safe way to communicate from the handler to the main loop.
-        if (g_hMainWnd) {
-            PostMessage(g_hMainWnd, WM_APP_SHUTDOWN, 0, 0);
-        }
-        // We've handled the signal. The main loop will now exit cleanly.
-        return TRUE;
-    }
-    return FALSE; // Pass on other events to the next handler.
 }
 
 // Use a dedicated namespace for configuration constants to keep them organized and reusable.
@@ -136,12 +114,9 @@ std::vector<std::string> ParseCommandLine() {
     if (argvW) {
         // Start from 1 to skip the program name, matching standard argv behavior.
         for (int i = 1; i < argc; ++i) {
-            // Determine the length of the wide string to convert, excluding the null terminator.
             int wlen = lstrlenW(argvW[i]);
-            // Determine the buffer size needed for the UTF-8 string.
             int size_needed = WideCharToMultiByte(CP_UTF8, 0, argvW[i], wlen, NULL, 0, NULL, NULL);
             std::string arg(size_needed, 0);
-            // Perform the conversion.
             WideCharToMultiByte(CP_UTF8, 0, argvW[i], wlen, &arg[0], size_needed, NULL, NULL);
             args.push_back(std::move(arg));
         }
@@ -161,28 +136,21 @@ void setup_verbosity_from_args(const std::vector<std::string>& args) {
 }
 
 // The application entry point. By using main(), we create a console application.
-int main() {
-    HINSTANCE hInstance = GetModuleHandle(NULL);
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
     const auto args = ParseCommandLine();
     setup_verbosity_from_args(args);
 
-    // If not in verbose mode, hide the console window that this application was launched with.
-    if (!g_isVerbose) {
-        ShowWindow(GetConsoleWindow(), SW_HIDE);
-    }
-
-    // Register our consoleHandler function for graceful shutdown on Ctrl+C.
-    if (!SetConsoleCtrlHandler(consoleHandler, TRUE)) {
-        // This is not a fatal error, but we should log it if possible.
-        logMessage("Warning: Could not set control handler.");
+    if (g_isVerbose) {
+        AttachConsole(ATTACH_PARENT_PROCESS);
+        freopen("CONOUT$", "w", stdout);
+        freopen("CONOUT$", "w", stderr);
+        std::ios::sync_with_stdio();
     }
 
     const wchar_t CLASS_NAME[] = L"ScreenLightWindowClass";
 
-    // Create the initial background brush (white).
     HBRUSH hInitialBrush = CreateSolidBrush(RGB(g_grayLevel, g_grayLevel, g_grayLevel));
     if (!hInitialBrush) {
-        logMessage("Error: Could not create initial background brush.");
         MessageBox(NULL, L"Could not create initial background brush.", L"Startup Error", MB_OK | MB_ICONERROR);
         return EXIT_FAILURE;
     }
@@ -193,34 +161,31 @@ int main() {
     wc.lpfnWndProc = WndProc;
     wc.hInstance = hInstance;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-    // Load the icon from our resources
     wc.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPICON));
     wc.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPICON));
     wc.hbrBackground = hInitialBrush;
     wc.lpszClassName = CLASS_NAME;
 
     if (!RegisterClassEx(&wc)) {
-        logMessage("Error: Could not register window class.");
         MessageBox(NULL, L"Could not register window class.", L"Startup Error", MB_OK | MB_ICONERROR);
         return EXIT_FAILURE;
     }
 
     HWND hwnd = CreateWindowEx(
-        0,                              // Optional window styles.
-        CLASS_NAME,                     // Window class
-        L"Screen Light",                // Window text
-        WS_POPUP,                       // Window style: a borderless popup window
-        0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), // Position and size
-        NULL,                           // Parent window
-        NULL,                           // Menu
-        hInstance,                      // Instance handle
-        NULL                            // Additional application data
+        0,
+        CLASS_NAME,
+        L"Screen Light",
+        WS_POPUP,
+        0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN),
+        NULL,
+        NULL,
+        hInstance,
+        NULL
     );
 
-    g_hMainWnd = hwnd; // Store the main window handle for the console handler to use.
+    g_hMainWnd = hwnd;
 
     if (!hwnd) {
-        logMessage("Error: Could not create window.");
         MessageBox(NULL, L"Could not create window.", L"Startup Error", MB_OK | MB_ICONERROR);
         return EXIT_FAILURE;
     }
@@ -233,16 +198,13 @@ int main() {
     MouseMover mover;
     MSG msg = {};
 
-    // Main message loop. It continues until WM_QUIT is received.
     while (true) {
-        // Process all pending messages in the queue.
         if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
             if (msg.message == WM_QUIT)
-                break; // Exit loop if WM_QUIT is received.
+                break;
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         } else {
-            // If there are no messages, do our work.
             mover.update();
             std::this_thread::sleep_for(config::kFrameDelay);
         }
@@ -250,7 +212,7 @@ int main() {
 
     logMessage("Program terminated.");
 
-    return (int)msg.wParam; // Return the exit code from WM_QUIT
+    return (int)msg.wParam;
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -258,9 +220,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_APP_SHUTDOWN:
         // This custom message is sent from our console handler. Fall through to WM_CLOSE.
     case WM_CLOSE:
-        // User tried to close the window (e.g., Alt+F4).
         DestroyWindow(hwnd);
-        break;
+        return EXIT_SUCCESS;
 
     case WM_DESTROY:
         {
@@ -270,7 +231,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
         }
         PostQuitMessage(0);
-        break;
+        return EXIT_SUCCESS;
 
     case WM_KEYDOWN:
         {
@@ -287,10 +248,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                     break;
             }
         }
-        break;
+        return EXIT_SUCCESS;
 
     default:
         return DefWindowProc(hwnd, msg, wParam, lParam);
     }
-    return EXIT_SUCCESS; // Return SUCCESS for messages we've handled.
 }
