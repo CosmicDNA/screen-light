@@ -146,7 +146,13 @@ void setup_console_from_args(const std::vector<std::string>& args) {
     for (const auto& arg : args) {
         if (arg == "--verbose") {
             g_isVerbose = true;
-            AllocConsole();
+            // Try to attach to the parent process's console (e.g., PowerShell, cmd).
+            // ATTACH_PARENT_PROCESS is a special value (-1) for AttachConsole.
+            if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
+                // If attaching fails (e.g., launched from Explorer), create a new console.
+                AllocConsole();
+            }
+
             FILE* dummy;
             freopen_s(&dummy, "CONOUT$", "w", stdout);
             freopen_s(&dummy, "CONOUT$", "w", stderr);
