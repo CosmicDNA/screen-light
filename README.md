@@ -9,8 +9,8 @@ A simple Windows utility that turns your monitor into a soft, adjustable light s
 - **Keeps System Awake**: Continuously moves the mouse cursor in the background to prevent the system from locking or the monitor from turning off.
 - **Minimalist Design**: Creates a fullscreen, borderless window with no distracting elements and a hidden cursor.
 - **Standalone Executable**: Builds a single, portable `.exe` file with no external dependencies, thanks to static linking. It can be run from any Windows machine.
-- **Silent Operation**: Runs as a true background application without a console window by default.
-- **Verbose Logging**: An optional `--verbose` flag can be used to open a console window for diagnostic messages.
+- **Console Integration**: Built as a console application for robust terminal interaction. When run by double-clicking, the console window is automatically hidden for a clean user experience.
+- **Verbose Logging**: Use the `--verbose` flag in a terminal (like PowerShell or `cmd`) to see diagnostic messages printed directly to that terminal.
 - **Easy Controls**: Adjust brightness coarsely or finely and quit the application with simple keyboard commands.
 
 ## Prerequisites

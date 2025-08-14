@@ -15,9 +15,12 @@
 #include <shellapi.h> // For CommandLineToArgvW
 #include "resource.h" // For our application icon ID
 
-std::atomic<bool> keepRunning = true;
+// Custom message used to signal a graceful shutdown from the console handler.
+#define WM_APP_SHUTDOWN (WM_APP + 1)
+
 bool g_isVerbose = false; // Global flag to control logging output.
 BYTE g_grayLevel = 255;   // Current gray level (0=black, 255=white)
+HWND g_hMainWnd = NULL;   // Global handle to the main window for cross-thread communication.
 
 // A simple logger that only prints messages if in verbose mode.
 void logMessage(const std::string& message) {
@@ -37,8 +40,13 @@ BOOL WINAPI consoleHandler(DWORD ctrlType) {
     case CTRL_BREAK_EVENT:
     case CTRL_CLOSE_EVENT:
         logMessage("\nShutdown signal received. Shutting down gracefully.");
-        keepRunning = false;
-        return TRUE; // Indicate that we have handled the event. The process will terminate after this handler returns.
+        // Post a message to the main window's message queue to initiate shutdown.
+        // This is the thread-safe way to communicate from the handler to the main loop.
+        if (g_hMainWnd) {
+            PostMessage(g_hMainWnd, WM_APP_SHUTDOWN, 0, 0);
+        }
+        // We've handled the signal. The main loop will now exit cleanly.
+        return TRUE;
     }
     return FALSE; // Pass on other events to the next handler.
 }
@@ -142,37 +150,31 @@ std::vector<std::string> ParseCommandLine() {
     return args;
 }
 
-void setup_console_from_args(const std::vector<std::string>& args) {
+// Sets the verbose flag based on command-line arguments.
+void setup_verbosity_from_args(const std::vector<std::string>& args) {
     for (const auto& arg : args) {
         if (arg == "--verbose") {
             g_isVerbose = true;
-            // Try to attach to the parent process's console (e.g., PowerShell, cmd).
-            // ATTACH_PARENT_PROCESS is a special value (-1) for AttachConsole.
-            if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
-                // If attaching fails (e.g., launched from Explorer), create a new console.
-                AllocConsole();
-            }
-
-            FILE* dummy;
-            freopen_s(&dummy, "CONOUT$", "w", stdout);
-            freopen_s(&dummy, "CONOUT$", "w", stderr);
-            return; // Found the flag, console is set up, no need to check further.
+            return;
         }
     }
 }
 
-// Use WinMain as the entry point to create a true GUI application that doesn't open a console by default.
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-    // Parse command-line arguments to check for flags like --verbose.
+// The application entry point. By using main(), we create a console application.
+int main() {
+    HINSTANCE hInstance = GetModuleHandle(NULL);
     const auto args = ParseCommandLine();
-    setup_console_from_args(args);
+    setup_verbosity_from_args(args);
 
-    // Register our consoleHandler function.
-    if (!SetConsoleCtrlHandler(consoleHandler, TRUE))
-    {
-        logMessage("Error: Could not set control handler.");
-        MessageBox(NULL, L"Could not set console control handler.", L"Startup Error", MB_OK | MB_ICONERROR);
-        return EXIT_FAILURE;
+    // If not in verbose mode, hide the console window that this application was launched with.
+    if (!g_isVerbose) {
+        ShowWindow(GetConsoleWindow(), SW_HIDE);
+    }
+
+    // Register our consoleHandler function for graceful shutdown on Ctrl+C.
+    if (!SetConsoleCtrlHandler(consoleHandler, TRUE)) {
+        // This is not a fatal error, but we should log it if possible.
+        logMessage("Warning: Could not set control handler.");
     }
 
     const wchar_t CLASS_NAME[] = L"ScreenLightWindowClass";
@@ -215,64 +217,52 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         NULL                            // Additional application data
     );
 
+    g_hMainWnd = hwnd; // Store the main window handle for the console handler to use.
+
     if (!hwnd) {
         logMessage("Error: Could not create window.");
         MessageBox(NULL, L"Could not create window.", L"Startup Error", MB_OK | MB_ICONERROR);
         return EXIT_FAILURE;
     }
 
-    ShowWindow(hwnd, nCmdShow);
+    ShowWindow(hwnd, SW_SHOWDEFAULT);
     UpdateWindow(hwnd);
-    // ShowCursor(FALSE); // Hide the mouse cursor for a cleaner look.
 
     logMessage("Screen light started. Press ESC to stop the program.");
 
     MouseMover mover;
     MSG msg = {};
 
-    // This is the main message loop.
-    while (keepRunning.load()) {
+    // Main message loop. It continues until WM_QUIT is received.
+    while (true) {
         // Process all pending messages in the queue.
-        while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-            if (msg.message == WM_QUIT) {
-                keepRunning = false;
-                break;
-            }
+        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+            if (msg.message == WM_QUIT)
+                break; // Exit loop if WM_QUIT is received.
             TranslateMessage(&msg);
             DispatchMessage(&msg);
+        } else {
+            // If there are no messages, do our work.
+            mover.update();
+            std::this_thread::sleep_for(config::kFrameDelay);
         }
-
-        if (!keepRunning.load()) {
-            break;
-        }
-
-        // If there are no messages to process, do our work.
-        mover.update();
-        std::this_thread::sleep_for(config::kFrameDelay);
     }
 
-    ShowCursor(TRUE); // Restore the mouse cursor before exiting.
     logMessage("Program terminated.");
-
-    // If we attached to or created a console, we must free it before exiting.
-    // This detaches our process from the console and allows the parent shell
-    // (e.g., PowerShell) to correctly regain control and redraw its prompt.
-    if (g_isVerbose) {
-        FreeConsole();
-    }
 
     return (int)msg.wParam; // Return the exit code from WM_QUIT
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
+    case WM_APP_SHUTDOWN:
+        // This custom message is sent from our console handler. Fall through to WM_CLOSE.
     case WM_CLOSE:
         // User tried to close the window (e.g., Alt+F4).
         DestroyWindow(hwnd);
-        return 0;
+        break;
+
     case WM_DESTROY:
-        // The window is being destroyed.
-        // Clean up the last background brush created to prevent resource leaks.
         {
             HBRUSH hBrush = (HBRUSH)GetClassLongPtr(hwnd, GCLP_HBRBACKGROUND);
             if (hBrush) {
@@ -280,29 +270,27 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
         }
         PostQuitMessage(0);
-        return 0;
+        break;
+
     case WM_KEYDOWN:
-    {
-        // By enclosing the case's logic in a block, we correctly scope the 'step'
-        // variable and prevent the "crosses initialization" compiler error.
-        const int step = (GetKeyState(VK_SHIFT) & 0x8000) ? 1 : 10;
-        switch (wParam) {
-            case VK_ESCAPE:
-                DestroyWindow(hwnd);
-                break;
-            case VK_UP:
-                UpdateBackgroundColor(hwnd, true, step); // Make the screen lighter
-                break;
-            case VK_DOWN:
-                UpdateBackgroundColor(hwnd, false, step); // Make the screen darker
-                break;
-            default:
-                // Do nothing for other keys
-                break;
+        {
+            const int step = (GetKeyState(VK_SHIFT) & 0x8000) ? 1 : 10;
+            switch (wParam) {
+                case VK_ESCAPE:
+                    DestroyWindow(hwnd);
+                    break;
+                case VK_UP:
+                    UpdateBackgroundColor(hwnd, true, step);
+                    break;
+                case VK_DOWN:
+                    UpdateBackgroundColor(hwnd, false, step);
+                    break;
+            }
         }
-        return 0;
-    }
+        break;
+
     default:
         return DefWindowProc(hwnd, msg, wParam, lParam);
     }
+    return EXIT_SUCCESS; // Return SUCCESS for messages we've handled.
 }
