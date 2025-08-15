@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 # Define the project name and language
-project(ScreenLight VERSION 1.0.7 LANGUAGES CXX)
+project(ScreenLight VERSION 1.0.8 LANGUAGES CXX)
 
 # Set the C++ standard to C++23
 set(CMAKE_CXX_STANDARD 23)
@@ -35,5 +35,5 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     # Statically link runtime libraries to create a portable executable.
     # This avoids runtime errors like "libgcc_s_seh-1.dll was not found".
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
-    target_link_libraries(${PROJECT_NAME} PRIVATE user32 gdi32)
+    target_link_libraries(${PROJECT_NAME} PRIVATE user32 gdi32 shell32)
 endif()

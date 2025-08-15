@@ -6,8 +6,8 @@ A simple Windows utility that turns your monitor into a soft, adjustable light s
 
 - **Video Conference Lighting**: Provides a bright, full-screen white display to act as a key light, improving video quality in low-light environments.
 - **Adjustable Brightness**: Use the `Up` and `Down` arrow keys to change the brightness of the screen light.
-- **Keeps System Awake**: Continuously moves the mouse cursor in the background to prevent the system from locking or the monitor from turning off.
-- **Minimalist Design**: Creates a fullscreen, borderless window with no distracting elements and a hidden cursor.
+- **Keeps System Awake**: Uses the Windows Power Management API to robustly prevent the system from sleeping. It also gently moves the mouse cursor as a visual indicator, which can be toggled on or off.
+- **Minimalist Design**: Creates a fullscreen, borderless window. The mouse cursor can be toggled off for a completely distraction-free display.
 - **Standalone Executable**: Builds a single, portable `.exe` file with no external dependencies, thanks to static linking. It can be run from any Windows machine.
 - **Silent Operation**: Runs as a true background application without a console window by default.
 - **Verbose Logging**: An optional `--verbose` flag can be used to open a console window for diagnostic messages.
@@ -62,3 +62,4 @@ Copy `ScreenLight.exe` to any Windows machine and run it.
 > [!TIP]
 > Use the `Up` and `Down` arrow keys to change the brightness of the screen light.
 > To achieve a finer brightness control, hold `Shift` when pressing `Up` and `Down`,
+> Press `M` to toggle the mouse cursor movement on and off.
