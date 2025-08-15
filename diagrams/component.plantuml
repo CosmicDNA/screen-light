@@ -1,0 +1,27 @@
+@startuml
+!theme plain
+title Screen-Light - Component Diagram
+
+skinparam componentStyle uml2
+
+[ScreenLight.exe] as App
+
+package "Windows System Libraries" {
+  [user32.dll] as User32
+  [gdi32.dll] as Gdi32
+  [shell32.dll] as Shell32
+}
+
+interface "Window Management" as IWin
+interface "Graphics Device Interface" as IGDI
+interface "Windows Shell" as IShell
+
+App ..> IWin
+App ..> IGDI
+App ..> IShell
+
+IWin <|-- User32
+IGDI <|-- Gdi32
+IShell <|-- Shell32
+
+@enduml

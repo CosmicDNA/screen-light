@@ -1,0 +1,22 @@
+@startuml
+title Screen-Light - Mouse Movement Sequence
+
+participant "OS Timer" as Timer
+participant "WndProc()" as WndProc
+participant "mover: MouseMover" as Mover
+
+loop Every 16ms
+    Timer -> WndProc: WM_TIMER (IDT_MOUSEMOVE_TIMER)
+    activate WndProc
+
+    alt mover.is_enabled() is true
+        WndProc -> Mover: update()
+        activate Mover
+        Mover -> OS: SetCursorPos(x, y)
+        deactivate Mover
+    end
+
+    deactivate WndProc
+end
+
+@enduml

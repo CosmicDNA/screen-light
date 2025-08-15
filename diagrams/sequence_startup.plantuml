@@ -1,0 +1,45 @@
+@startuml
+title Screen-Light - Application Startup Sequence
+
+actor User
+participant "OS" as OS
+participant "WinMain()" as WinMain
+participant "WndProc()" as WndProc
+participant "ConsoleHandler()" as ConsoleHandler
+
+User -> OS: Executes ScreenLight.exe [--verbose]
+OS -> WinMain: Calls entry point
+
+WinMain -> WinMain: ParseCommandLine()
+WinMain -> WinMain: setup_verbosity_from_args()
+
+alt --verbose flag is present
+  WinMain -> OS: AllocConsole() / AttachConsole()
+  WinMain -> OS: SetConsoleCtrlHandler(ConsoleHandler)
+end
+
+WinMain -> OS: RegisterClassEx(wc)
+note right: Window Class is configured\nwith WndProc as the message handler.
+
+OS -> WinMain: Returns success
+WinMain -> OS: CreateWindowEx(...)
+OS -> WndProc: Sends WM_CREATE message
+
+activate WndProc
+WndProc -> OS: SetTimer(IDT_MOUSEMOVE_TIMER)
+deactivate WndProc
+
+OS -> WinMain: Returns window handle (hwnd)
+WinMain -> OS: ShowWindow(hwnd)
+WinMain -> OS: SetThreadExecutionState(ES_DISPLAY_REQUIRED)
+note right: Prevents monitor from sleeping.
+
+loop Message Loop
+  WinMain -> OS: GetMessage()
+  OS --> WinMain: (waits for message)
+  WinMain -> OS: TranslateMessage()
+  WinMain -> OS: DispatchMessage()
+  OS -> WndProc: Calls WndProc with message
+end
+
+@enduml

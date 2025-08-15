@@ -1,0 +1,25 @@
+@startuml
+title Screen-Light - User Input Handling (WM_KEYDOWN)
+
+start
+:Wait for key press;
+
+if (Key is ESC?) then (yes)
+  :DestroyWindow();
+  stop
+else (no)
+  if (Key is Up/Down Arrow?) then (yes)
+    :Check if SHIFT is pressed;
+    :Calculate brightness step (1 or 10);
+    :UpdateBackgroundColor();
+  else (no)
+    if (Key is 'M'?) then (yes)
+      :mover.toggle();
+      :ShowCursor(mover.is_enabled());
+    endif
+  endif
+endif
+
+:Return to waiting;
+
+@enduml

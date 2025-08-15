@@ -1,0 +1,21 @@
+@startuml
+title Screen-Light - Application State Diagram
+
+state "Running" as Running {
+    state "Mouse Moving" as Moving
+    state "Mouse Static" as Static
+
+    [*] --> Moving: On Startup
+    Moving -> Static: 'M' key pressed
+    Static -> Moving: 'M' key pressed
+}
+
+[*] --> Initializing
+Initializing --> Running: Window Created
+
+Running --> Terminating: ESC key pressed (WM_CLOSE)
+Running --> Terminating: Ctrl+C in console (WM_APP_SHUTDOWN)
+
+Terminating --> [*]: Window Destroyed (WM_DESTROY)
+
+@enduml
