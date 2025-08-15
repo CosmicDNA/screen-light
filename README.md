@@ -13,35 +13,16 @@ A simple Windows utility that turns your monitor into a soft, adjustable light s
 - **Verbose Logging**: An optional `--verbose` flag can be used to open a console window for diagnostic messages.
 - **Easy Controls**: Adjust brightness coarsely or finely and quit the application with simple keyboard commands.
 
-## Prerequisites
+## Installation
 
-This project is set up for cross-compilation from a Linux environment to Windows. You will need the following tools installed:
+The easiest way to install Screen Light is via the Windows Package Manager (winget). Open a Command Prompt or PowerShell and run:
 
-- CMake (version 3.20 or newer)
-- Ninja Build System
-- MinGW-w64 Toolchain (specifically the `x86_64-w64-mingw32` target)
-
-On Debian/Ubuntu-based systems, you can install these with:
-```bash
-sudo apt-get update
-sudo apt-get install cmake ninja-build g++-mingw-w64-x86-64
+```powershell
+winget install CosmicDNA.ScreenLight
 ```
 
-## Building
+> [!NOTE] Alternatively, you can download the [latest release](https://github.com/CosmicDNA/screen-light/releases/latest) from the GitHub Releases page. Download the `ScreenLight-windows-x64.zip` file, extract it, and run `ScreenLight.exe`.
 
-The project uses CMake Presets for a simplified and reproducible build process.
-
-1.  **Configure the project** (for a release build):
-    ```bash
-    cmake --preset mingw-release
-    ```
-
-2.  **Build the executable**:
-    ```bash
-    cmake --build --preset release
-    ```
-
-The final executable, `ScreenLight.exe`, will be located in the `build/mingw-release/` directory.
 
 ## Usage
 
@@ -59,10 +40,44 @@ Copy `ScreenLight.exe` to any Windows machine and run it.
   ```
   This will launch the application and also open a separate console window to display log messages. Press `ESC` to quit, or `Ctrl+C` in the console window.
 
+
 > [!TIP]
 > Use the `Up` and `Down` arrow keys to change the brightness of the screen light.
 > To achieve a finer brightness control, hold `Shift` when pressing `Up` and `Down`,
 > Press `M` to toggle the mouse cursor movement on and off.
+
+
+## Building From Source
+
+### Requisites
+
+This project is set up for cross-compilation from a Linux environment to Windows. You will need the following tools installed:
+
+- CMake (version 3.20 or newer)
+- Ninja Build System
+- MinGW-w64 Toolchain (specifically the `x86_64-w64-mingw32` target)
+
+On Debian/Ubuntu-based systems, you can install these with:
+```bash
+sudo apt-get update
+sudo apt-get install cmake ninja-build g++-mingw-w64-x86-64
+```
+
+### Building Commands
+
+The project uses CMake Presets for a simplified and reproducible build process.
+
+1.  **Configure the project** (for a release build):
+    ```bash
+    cmake --preset mingw-release
+    ```
+
+2.  **Build the executable**:
+    ```bash
+    cmake --build --preset release
+    ```
+
+The final executable, `ScreenLight.exe`, will be located in the `build/mingw-release/` directory.
 
 
 ## Architecture Diagrams
