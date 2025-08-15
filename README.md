@@ -21,7 +21,7 @@ The easiest way to install Screen Light is via the Windows Package Manager (wing
 winget install CosmicDNA.ScreenLight
 ```
 
-> [!NOTE] Alternatively, you can download the [latest release](https://github.com/CosmicDNA/screen-light/releases/latest) from the GitHub Releases page. Download the `ScreenLight-windows-x64.zip` file, extract it, and run `ScreenLight.exe`.
+> [!IMPORTANT] Alternatively, you can download the [latest release](https://github.com/CosmicDNA/screen-light/releases/latest) from the GitHub Releases page. Download the `ScreenLight-windows-x64.zip` file, extract it, and run `ScreenLight.exe`.
 
 
 ## Usage
