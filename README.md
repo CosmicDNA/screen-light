@@ -8,7 +8,7 @@ A simple Windows utility that turns your monitor into a soft, adjustable light s
 - **Adjustable Brightness**: Use the `Up` and `Down` arrow keys to change the brightness of the screen light.
 - **Keeps System Awake**: Uses the Windows Power Management API to robustly prevent the system from sleeping. It also gently moves the mouse cursor as a visual indicator, which can be toggled on or off.
 - **Minimalist Design**: Creates a fullscreen, borderless window. The mouse cursor can be toggled off for a completely distraction-free display.
-- **Standalone Executable**: Builds a single, portable `.exe` file with no external dependencies, thanks to static linking. It can be run from any Windows machine.
+- **Portable Package**: The release is a simple `.zip` file containing the executable and all required runtime libraries. No installation is needed.
 - **Silent Operation**: Runs as a true background application without a console window by default.
 - **Verbose Logging**: An optional `--verbose` flag can be used to open a console window for diagnostic messages.
 - **Easy Controls**: Adjust brightness coarsely or finely and quit the application with simple keyboard commands.

@@ -29,7 +29,22 @@ jobs:
 
       - name: Package release assets
         run: |
-          zip -j ScreenLight-windows-x64.zip build/mingw-release/ScreenLight.exe README.md LICENSE.md
+          # Create a staging directory to gather all release files.
+          mkdir staging
+
+          # Copy the main executable and documentation into the staging directory.
+          cp build/mingw-release/ScreenLight.exe staging/
+          cp README.md staging/
+          cp LICENSE.md staging/
+
+          # Find and copy the required MinGW runtime DLLs. Using `find` is robust
+          # as the exact toolchain path can vary on different runner images.
+          find /usr/lib/gcc/x86_64-w64-mingw32 -name "libstdc++-6.dll" -exec cp {} staging/ \;
+          find /usr/lib/gcc/x86_64-w64-mingw32 -name "libgcc_s_seh-1.dll" -exec cp {} staging/ \;
+          find /usr/lib/gcc/x86_64-w64-mingw32 -name "libwinpthread-1.dll" -exec cp -n {} staging/ \; || echo "libwinpthread-1.dll not found, continuing without it."
+
+          # Create the final zip archive. The -j flag "junks" paths, putting all files in the root of the zip.
+          zip -j ScreenLight-windows-x64.zip staging/*
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

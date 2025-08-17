@@ -1,0 +1,23 @@
+{
+  "name": "screen-light",
+  "version": "1.0.0",
+  "description": "A simple Windows utility that turns your monitor into a soft, adjustable light source, perfect for illuminating your face during video conferences, while also preventing the system from sleeping.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CosmicDNA/screen-light.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CosmicDNA/screen-light/issues"
+  },
+  "homepage": "https://github.com/CosmicDNA/screen-light#readme",
+  "dependencies": {
+    "svgexport": "^0.4.2"
+  }
+}

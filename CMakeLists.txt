@@ -32,8 +32,9 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE UNICODE _UNICODE)
 
 # Link against necessary Windows libraries only when building for Windows
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    # Statically link runtime libraries to create a portable executable.
-    # This avoids runtime errors like "libgcc_s_seh-1.dll was not found".
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+    # By commenting out the "-static" flag, we switch to dynamic linking.
+    # This means the MinGW runtime DLLs (e.g., libstdc++-6.dll, libgcc_s_seh-1.dll)
+    # must be distributed alongside the executable.
+    # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
     target_link_libraries(${PROJECT_NAME} PRIVATE user32 gdi32 shell32)
 endif()
