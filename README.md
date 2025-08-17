@@ -1,6 +1,10 @@
 # Screen Light
 
-A simple Windows utility that turns your monitor into a soft, adjustable light source, perfect for illuminating your face during video conferences, while also preventing the system from sleeping.
+Look your best on video calls and keep your computer awake with one simple tool that turns your monitor into a soft, adjustable light source.
+
+Screen Light turns your monitor into a soft, adjustable light source to illuminate your face during video conferences. It also prevents your system from sleeping or locking—perfect for long meetings, presentations, or when you need your machine to stay active.
+
+It's a minimalist, powerful utility for the modern remote professional.
 
 ## Features
 

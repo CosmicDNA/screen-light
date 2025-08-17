@@ -13,7 +13,7 @@
     <DisplayName>Screen Light</DisplayName>
     <PublisherDisplayName>Cosmic DNA</PublisherDisplayName>
     <Logo>assets\StoreLogo.png</Logo>
-    <Description>A simple Windows utility that turns your monitor into a soft, adjustable light source.</Description>
+    <Description>Look your best on video calls and keep your computer awake with one simple tool that turns your monitor into a soft, adjustable light source.</Description>
   </Properties>
 
   <Dependencies>
@@ -30,7 +30,7 @@
       EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
         DisplayName="Screen Light"
-        Description="A simple Windows utility that turns your monitor into a soft, adjustable light source."
+        Description="Look your best on video calls and keep your computer awake with one simple tool that turns your monitor into a soft, adjustable light source."
         Square150x150Logo="assets\Square150x150Logo.png"
         Square44x44Logo="assets\Square44x44Logo.png"
         BackgroundColor="transparent">
