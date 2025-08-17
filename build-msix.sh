@@ -9,9 +9,10 @@ set -e # Exit immediately if a command exits with a non-zero status.
 
 # --- Configuration & Help ---
 usage() {
-    echo "Usage: $0 -o <OutputDir> -c <PfxFile>"
+    echo "Usage: $0 -o <OutputDir> [-c <PfxFile>]"
     echo "  -o: Path where the final signed MSIX package will be saved (WSL path)."
-    echo "  -c: Path to your .pfx code signing certificate (WSL path)."
+    echo "  -c: (Optional) Path to your .pfx code signing certificate (WSL path)."
+    echo "      If omitted, the package will be created but not signed."
     exit 1
 }
 
@@ -29,7 +30,7 @@ while getopts "o:c:" opt; do
     esac
 done
 
-if [ -z "$OUTPUT_DIR" ] || [ -z "$PFX_FILE" ]; then
+if [ -z "$OUTPUT_DIR" ]; then
     usage
 fi
 
@@ -89,37 +90,46 @@ echo "   Staging directory prepared at '$STAGING_DIR'."
 
 # 3. Create the MSIX package
 echo -e "\n3. Creating the MSIX package..."
-if [ ! -f "$PFX_FILE" ]; then echo "ERROR: Certificate file not found: $PFX_FILE" >&2; exit 1; fi
 mkdir -p "$OUTPUT_DIR" # Create output directory if it doesn't exist
 
 # Convert WSL paths to Windows paths for the .exe tools using wslpath
 STAGING_DIR_WIN=$(wslpath -w "$STAGING_DIR")
 OUTPUT_DIR_WIN=$(wslpath -w "$OUTPUT_DIR")
-PFX_FILE_WIN=$(wslpath -w "$PFX_FILE")
 
 # Extract version from manifest to name the package dynamically
 PACKAGE_VERSION=$(grep -oP '(?<=\s)Version="[^"]*"' "$STAGING_DIR/AppxManifest.xml" | sed 's/Version="\([^"]*\)"/\1/')
-FINAL_PACKAGE_NAME="ScreenLight_${PACKAGE_VERSION}_x64.msix"
 UNSIGNED_PACKAGE_PATH_WIN="$OUTPUT_DIR_WIN\\temp_unsigned.msix"
-SIGNED_PACKAGE_PATH_WSL="$OUTPUT_DIR/$FINAL_PACKAGE_NAME"
 
 echo "   Creating unsigned package from '$STAGING_DIR_WIN'..."
 "$MAKEAPPX_EXE" pack /d "$STAGING_DIR_WIN" /p "$UNSIGNED_PACKAGE_PATH_WIN" /o
 echo "   Package created."
 
-# 4. Sign the MSIX package
-echo -e "\n4. Signing the package..."
-# read -sp "Enter the password for '$PFX_FILE': " PFX_PASSWORD
-echo "" # Newline after password input
+# 4. Sign the MSIX package (if certificate is provided)
+if [ -n "$PFX_FILE" ]; then
+    echo -e "\n4. Signing the package..."
+    if [ ! -f "$PFX_FILE" ]; then echo "ERROR: Certificate file not found: $PFX_FILE" >&2; exit 1; fi
+    PFX_FILE_WIN=$(wslpath -w "$PFX_FILE")
 
-"$SIGNTOOL_EXE" sign /f "$PFX_FILE_WIN" /p "$PFX_PASSWORD" /fd SHA256 /td SHA256 /a "$UNSIGNED_PACKAGE_PATH_WIN"
+    # Prompt for password if PFX_PASSWORD environment variable is not set
+    if [ -z "$PFX_PASSWORD" ]; then
+        read -sp "Enter the password for '$PFX_FILE': " PFX_PASSWORD
+        echo "" # Newline after password input
+    fi
+
+    "$SIGNTOOL_EXE" sign /f "$PFX_FILE_WIN" /p "$PFX_PASSWORD" /fd SHA256 /td SHA256 /a "$UNSIGNED_PACKAGE_PATH_WIN"
+    FINAL_PACKAGE_NAME="ScreenLight_${PACKAGE_VERSION}_x64.msix"
+    SUCCESS_MESSAGE="MSIX packaging complete!\nFind your signed package at:"
+else
+    echo -e "\n4. No certificate provided. Skipping signing."
+    FINAL_PACKAGE_NAME="ScreenLight_${PACKAGE_VERSION}_x64.msix"
+    SUCCESS_MESSAGE="Store-ready (unsigned) MSIX packaging complete!\nFind your package at:"
+fi
 
 # 5. Finalize and clean up
 echo -e "\n5. Finalizing package..."
-# Rename the signed temp file to its final name
-mv "$(wslpath -u "$UNSIGNED_PACKAGE_PATH_WIN")" "$SIGNED_PACKAGE_PATH_WSL"
+FINAL_PACKAGE_PATH_WSL="$OUTPUT_DIR/$FINAL_PACKAGE_NAME"
+mv "$(wslpath -u "$UNSIGNED_PACKAGE_PATH_WIN")" "$FINAL_PACKAGE_PATH_WSL"
 
 echo -e "\n--- SUCCESS ---"
-echo "MSIX packaging complete!"
-echo "Find your signed package at: $SIGNED_PACKAGE_PATH_WSL"
-
+echo -e "$SUCCESS_MESSAGE"
+echo "$FINAL_PACKAGE_PATH_WSL"
