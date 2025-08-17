@@ -58,10 +58,11 @@ Before you can install an MSIX package signed with your new certificate, you mus
 
 If double-clicking the `.pfx` file does not work (due to system policies or file associations), you can use the `certutil` command-line tool. This is a more reliable method.
 
-Run the following command. You will need to set `"$PFX_PASSWORD"` env var with the actual password you set for the `.pfx` file:
+Run the following command in the terminal running as Administrator. You will need to set `"$PFX_PASSWORD"` env var with the actual password you set for the `.pfx` file:
 
 ```powershell
-certutil.exe -f -p "$PFX_PASSWORD" -importpfx CosmicDNA-TestCert.pfx
+# Note: You must be in the same directory as the .pfx file (e.g., your Desktop)
+certutil.exe -f -p "$PFX_PASSWORD" -importpfx Root CosmicDNA-TestCert.pfx
 ```
 
 - `-f`: Forces the overwrite of an existing certificate if found.
@@ -72,13 +73,22 @@ certutil.exe -f -p "$PFX_PASSWORD" -importpfx CosmicDNA-TestCert.pfx
 
 Once the certificate is installed in the "Trusted Root" store, you can install any MSIX package signed with it without security errors.
 
-## Using the Certificate
+## Next Steps: Signing and Distribution Paths
 
-You can now use the `CosmicDNA-TestCert.pfx` file with a signing tool (like `SignTool.exe` from the Windows SDK) to sign your MSIX package.
+There are three main paths for distributing your application, each with different signing requirements and costs.
 
-```powershell
-# Example of signing with SignTool.exe
-SignTool.exe sign /f CosmicDNA-TestCert.pfx /p "$PFX_PASSWORD" /fd SHA256 /td SHA256 /a "C:\path\to\your\app.msix"
+### Path 1: Local Testing (Free)
+
+This is the purpose of the self-signed certificate you just created. It's completely free and allows you to install and test the application on your own machines.
+
+The `build-msix.sh` script automates this. To create a locally-signed package, run the build script with the `-c` flag pointing to your `.pfx` file:
+
+```bash
+# Example of building a signed package for local testing
+./build-msix.sh -o build -c CosmicDNA-TestCert.pfx
 ```
+
+> [!TIP]
+> Omit `-c` flag if you want to generate an unsigned package.
 
 This completes the process of creating and using a self-signed certificate for testing your application.
