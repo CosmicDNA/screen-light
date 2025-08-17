@@ -12,14 +12,14 @@ The following PowerShell script will create the self-signed certificate and imme
 The `Subject` name used here is critical: it **must** exactly match the `Publisher` attribute in your `AppxManifest.xml` file.
 
 For this project, the publisher is:
-`"CN=Cosmic DNA, O=Cosmic DNA, L=London, C=GB"`
+`"CN=Daniel K. de Souza, O=Daniel K. de Souza, L=London, C=GB"`
 
 1.  Open PowerShell as an Administrator.
 2.  Run the following script. You will be prompted to enter a secure password for the `.pfx` file.
 
     ```powershell
     # Define the subject for the certificate. This must match the Publisher in AppxManifest.xml
-    $subject = "CN=Cosmic DNA, O=Cosmic DNA, L=London, C=GB"
+    $subject = "CN=Daniel K. de Souza, O=Daniel K. de Souza, L=London, C=GB"
 
     # Define the output path for the certificate file (your Desktop).
     $pfxPath = "$HOME\Desktop\CosmicDNA-TestCert.pfx"

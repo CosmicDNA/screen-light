@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# Builds the ScreenLight project, prepares all necessary files, and creates a
+# Builds the ScreenLighteer project, prepares all necessary files, and creates a
 # signed MSIX package. This script is designed to be run from within WSL2.
 #
 
@@ -76,7 +76,7 @@ rm -rf "$STAGING_DIR"
 mkdir -p "$STAGING_DIR/assets"
 
 # Copy executable
-cp "$PROJECT_ROOT/build/mingw-release/ScreenLight.exe" "$STAGING_DIR/"
+cp "$PROJECT_ROOT/build/mingw-release/ScreenLighteer.exe" "$STAGING_DIR/"
 
 # Copy required MinGW DLLs
 find /usr/lib/gcc/x86_64-w64-mingw32 -name "libstdc++-6.dll" -exec cp {} "$STAGING_DIR/" \;
@@ -117,11 +117,11 @@ if [ -n "$PFX_FILE" ]; then
     fi
 
     "$SIGNTOOL_EXE" sign /f "$PFX_FILE_WIN" /p "$PFX_PASSWORD" /fd SHA256 /td SHA256 /a "$UNSIGNED_PACKAGE_PATH_WIN"
-    FINAL_PACKAGE_NAME="ScreenLight_${PACKAGE_VERSION}_x64.msix"
+    FINAL_PACKAGE_NAME="ScreenLighteer_${PACKAGE_VERSION}_x64.msix"
     SUCCESS_MESSAGE="MSIX packaging complete!\nFind your signed package at:"
 else
     echo -e "\n4. No certificate provided. Skipping signing."
-    FINAL_PACKAGE_NAME="ScreenLight_${PACKAGE_VERSION}_x64.msix"
+    FINAL_PACKAGE_NAME="ScreenLighteer_${PACKAGE_VERSION}_x64.msix"
     SUCCESS_MESSAGE="Store-ready (unsigned) MSIX packaging complete!\nFind your package at:"
 fi
 

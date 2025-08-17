@@ -1,5 +1,5 @@
 @startuml
-title Screen-Light - Application Startup Sequence
+title Screen-Lighteer - Application Startup Sequence
 
 actor User
 participant "OS" as OS
@@ -7,7 +7,7 @@ participant "WinMain()" as WinMain
 participant "WndProc()" as WndProc
 participant "ConsoleHandler()" as ConsoleHandler
 
-User -> OS: Executes ScreenLight.exe [--verbose]
+User -> OS: Executes ScreenLighteer.exe [--verbose]
 OS -> WinMain: Calls entry point
 
 WinMain -> WinMain: ParseCommandLine()

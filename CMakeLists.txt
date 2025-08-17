@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 # Define the project name and language
-project(ScreenLight VERSION 1.0.8 LANGUAGES CXX)
+project(ScreenLighteer VERSION 1.0.8 LANGUAGES CXX)
 
 # Set the C++ standard to C++23
 set(CMAKE_CXX_STANDARD 23)

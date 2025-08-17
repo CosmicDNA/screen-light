@@ -1,5 +1,5 @@
 @startuml
-title Screen-Light - Mouse Movement Sequence
+title Screen-Lighteer - Mouse Movement Sequence
 
 participant "OS Timer" as Timer
 participant "WndProc()" as WndProc

@@ -1,8 +1,8 @@
-# Screen Light
+# Screen Lighteer
 
 Look your best on video calls and keep your computer awake with one simple tool that turns your monitor into a soft, adjustable light source.
 
-Screen Light turns your monitor into a soft, adjustable light source to illuminate your face during video conferences. It also prevents your system from sleeping or locking—perfect for long meetings, presentations, or when you need your machine to stay active.
+Screen Lighteer turns your monitor into a soft, adjustable light source to illuminate your face during video conferences. It also prevents your system from sleeping or locking—perfect for long meetings, presentations, or when you need your machine to stay active.
 
 It's a minimalist, powerful utility for the modern remote professional.
 
@@ -19,29 +19,29 @@ It's a minimalist, powerful utility for the modern remote professional.
 
 ## Installation
 
-The easiest way to install Screen Light is via the Windows Package Manager (winget). Open a Command Prompt or PowerShell and run:
+The easiest way to install Screen Lighteer is via the Windows Package Manager (winget). Open a Command Prompt or PowerShell and run:
 
 ```powershell
-winget install CosmicDNA.ScreenLight
+winget install CosmicDNA.ScreenLighteer
 ```
 
 > [!NOTE]
-> Alternatively, you can download the [latest release](https://github.com/CosmicDNA/screen-light/releases/latest) from the GitHub Releases page. Download the `ScreenLight-windows-x64.zip` file, extract it, and run `ScreenLight.exe`.
+> Alternatively, you can download the [latest release](https://github.com/CosmicDNA/screen-light/releases/latest) from the GitHub Releases page. Download the `ScreenLighteer-windows-x64.zip` file, extract it, and run `ScreenLighteer.exe`.
 
 
 ## Usage
 
-Copy `ScreenLight.exe` to any Windows machine and run it.
+Copy `ScreenLighteer.exe` to any Windows machine and run it.
 
 - **Standard Mode**:
   ```
-  ScreenLight.exe
+  ScreenLighteer.exe
   ```
   This will launch the fullscreen white window and start moving the mouse. Press `ESC` to quit.
 
 - **Verbose Mode**:
   ```
-  ScreenLight.exe --verbose
+  ScreenLighteer.exe --verbose
   ```
   This will launch the application and also open a separate console window to display log messages. Press `ESC` to quit, or `Ctrl+C` in the console window.
 
@@ -82,14 +82,14 @@ The project uses CMake Presets for a simplified and reproducible build process.
     cmake --build --preset release
     ```
 
-The final executable, `ScreenLight.exe`, will be located in the `build/mingw-release/` directory.
+The final executable, `ScreenLighteer.exe`, will be located in the `build/mingw-release/` directory.
 
 
 ## Architecture Diagrams
 
 The project's architecture and runtime behavior are visualized in the diagrams below. The PlantUML source files for these diagrams can be found in the `diagrams` directory and can be viewed or edited using a PlantUML-compatible tool, such as the PlantUML extension for VS Code.
 
-**Figure 1** provides a high-level component diagram, illustrating how `ScreenLight.exe` interacts with essential Windows system libraries like `user32.dll`, `gdi32.dll`, and `shell32.dll`.
+**Figure 1** provides a high-level component diagram, illustrating how `ScreenLighteer.exe` interacts with essential Windows system libraries like `user32.dll`, `gdi32.dll`, and `shell32.dll`.
 
 <p align="center">
   <img src="out/diagrams/component/component.svg" alt="Component Diagram">

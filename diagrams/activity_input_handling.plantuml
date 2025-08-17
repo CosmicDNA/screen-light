@@ -1,5 +1,5 @@
 @startuml
-title Screen-Light - User Input Handling (WM_KEYDOWN)
+title Screen-Lighteer - User Input Handling (WM_KEYDOWN)
 
 start
 :Wait for key press;

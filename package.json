@@ -1,6 +1,6 @@
 {
-  "name": "screen-light",
-  "version": "1.0.0",
+  "name": "screen-lighteer",
+  "version": "1.0.8",
   "description": "A simple Windows utility that turns your monitor into a soft, adjustable light source, perfect for illuminating your face during video conferences, while also preventing the system from sleeping.",
   "main": "index.js",
   "scripts": {

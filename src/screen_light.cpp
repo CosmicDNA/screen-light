@@ -191,7 +191,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
         SetConsoleCtrlHandler(ConsoleHandler, TRUE);
     }
 
-    const wchar_t CLASS_NAME[] = L"ScreenLightWindowClass";
+    const wchar_t CLASS_NAME[] = L"ScreenLighteerWindowClass";
 
     const BYTE initialGrayLevel = 255; // Start with a full white screen.
     HBRUSH hInitialBrush = CreateSolidBrush(RGB(initialGrayLevel, initialGrayLevel, initialGrayLevel));
@@ -219,7 +219,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
     HWND hwnd = CreateWindowEx(
         0,
         CLASS_NAME,
-        L"Screen Light",
+        L"Screen Lighteer",
         WS_POPUP,
         0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN),
         NULL,

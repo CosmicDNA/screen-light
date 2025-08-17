@@ -1,10 +1,10 @@
 @startuml
 !theme plain
-title Screen-Light - Component Diagram
+title Screen-Lighteer - Component Diagram
 
 skinparam componentStyle uml2
 
-[ScreenLight.exe] as App
+[ScreenLighteer.exe] as App
 
 package "Windows System Libraries" {
   [user32.dll] as User32

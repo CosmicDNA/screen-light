@@ -1,5 +1,5 @@
 @startuml
-title Screen-Light - Application State Diagram
+title Screen-Lighteer - Application State Diagram
 
 state "Running" as Running {
     state "Mouse Moving" as Moving

@@ -17,13 +17,13 @@ BEGIN
     BEGIN
         BLOCK "080904b0" // U.K. English, Unicode
         BEGIN
-            VALUE "CompanyName",      "Cosmic DNA Ltd."
+            VALUE "CompanyName",      "Daniel K. de Souza"
             VALUE "FileDescription",  "A utility to use the screen as a light source."
             VALUE "FileVersion",      "@PROJECT_VERSION@"
-            VALUE "InternalName",     "ScreenLight.exe"
-            VALUE "LegalCopyright",   "Copyright (C) Cosmic DNA Ltd. All rights reserved."
-            VALUE "OriginalFilename", "ScreenLight.exe"
-            VALUE "ProductName",      "Screen Light"
+            VALUE "InternalName",     "ScreenLighteer.exe"
+            VALUE "LegalCopyright",   "Copyright (C) Daniel K. de Souza. All rights reserved."
+            VALUE "OriginalFilename", "ScreenLighteer.exe"
+            VALUE "ProductName",      "Screen Lighteer"
             VALUE "ProductVersion",   "@PROJECT_VERSION@"
         END
     END

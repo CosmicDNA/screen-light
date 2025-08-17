@@ -33,7 +33,7 @@ jobs:
           mkdir staging
 
           # Copy the main executable and documentation into the staging directory.
-          cp build/mingw-release/ScreenLight.exe staging/
+          cp build/mingw-release/ScreenLighteer.exe staging/
           cp README.md staging/
           cp LICENSE.md staging/
 
@@ -44,10 +44,10 @@ jobs:
           find /usr/lib/gcc/x86_64-w64-mingw32 -name "libwinpthread-1.dll" -exec cp -n {} staging/ \; || echo "libwinpthread-1.dll not found, continuing without it."
 
           # Create the final zip archive. The -j flag "junks" paths, putting all files in the root of the zip.
-          zip -j ScreenLight-windows-x64.zip staging/*
+          zip -j ScreenLighteer-windows-x64.zip staging/*
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ScreenLight-windows-x64.zip
+          files: ScreenLighteer-windows-x64.zip
           generate_release_notes: true # Automatically create release notes from commits
