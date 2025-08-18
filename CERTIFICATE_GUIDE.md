@@ -21,8 +21,9 @@ For this project, the publisher is:
     # Define the subject for the certificate. This must match the Publisher in AppxManifest.xml
     $subject = "CN=Daniel K. de Souza, O=Daniel K. de Souza, L=London, C=GB"
 
-    # Define the output path for the certificate file (your Desktop).
-    $pfxPath = "$HOME\Desktop\CosmicDNA-TestCert.pfx"
+    # Get the path to the user's Desktop folder in a reliable way.
+    $desktopPath = [System.Environment]::GetFolderPath('Desktop')
+    $pfxPath = Join-Path -Path $desktopPath -ChildPath "DKS-TestCert.pfx"
 
     # Create the certificate in the user's personal store and capture the output object.
     $cert = New-SelfSignedCertificate -Type CodeSigningCert -Subject $subject -CertStoreLocation "Cert:\CurrentUser\My" -KeyAlgorithm RSA -KeyLength 2048 -HashAlgorithm SHA256 -NotAfter (Get-Date).AddYears(5)
@@ -38,7 +39,7 @@ For this project, the publisher is:
     }
     ```
 
-3.  A `CosmicDNA-TestCert.pfx` file will be created on your Desktop. **Keep this file and its password secure.** You will need it to sign your MSIX package.
+3.  A `DKS-TestCert.pfx` file will be created on your Desktop. **Keep this file and its password secure.** You will need it to sign your MSIX package.
 
 ## Step 2: Install the Certificate for Testing
 
@@ -46,7 +47,7 @@ Before you can install an MSIX package signed with your new certificate, you mus
 
 ### Method 1: Using the Certificate Import Wizard (GUI)
 
-1.  Find the `CosmicDNA-TestCert.pfx` file on your Desktop and double-click it.
+1.  Find the `DKS-TestCert.pfx` file on your Desktop and double-click it.
 2.  The Certificate Import Wizard should open. For **Store Location**, choose **`Local Machine`**. You will need administrator rights.
 3.  Click `Next`. The file path should already be selected. Click `Next` again.
 4.  Enter the password you created in Step 1. Click `Next`.
@@ -62,7 +63,7 @@ Run the following command in the terminal running as Administrator. You will nee
 
 ```powershell
 # Note: You must be in the same directory as the .pfx file (e.g., your Desktop)
-certutil.exe -f -p "$PFX_PASSWORD" -importpfx Root CosmicDNA-TestCert.pfx
+certutil.exe -f -p "$PFX_PASSWORD" -importpfx Root DKS-TestCert.pfx
 ```
 
 - `-f`: Forces the overwrite of an existing certificate if found.
@@ -85,7 +86,7 @@ The `build-msix.sh` script automates this. To create a locally-signed package, r
 
 ```bash
 # Example of building a signed package for local testing
-./build-msix.sh -o build -c CosmicDNA-TestCert.pfx
+./build-msix.sh -o build -c DKS-TestCert.pfx
 ```
 
 > [!TIP]
